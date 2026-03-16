@@ -7,16 +7,25 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/sdaly-ie/ct5209-springboot-war.git'
             }
         }
+
         stage('Build') {
             steps {
-                sh 'mvn clean'
+                sh 'mvn clean compile'
             }
         }
+
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+
         stage('Package') {
             steps {
-                sh 'mvn package'
+                sh 'mvn -DskipTests package'
             }
         }
+
         stage('Archive') {
             steps {
                 archiveArtifacts allowEmptyArchive: true, artifacts: '**/stephenspetitions*.war'
