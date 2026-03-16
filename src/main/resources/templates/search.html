@@ -7,7 +7,7 @@
 <body>
 <h1>Search Petitions</h1>
 
-<form action="/search/results" method="get">
+<form th:action="@{/search/results}" method="get">
     <p>
         <label for="keyword">Keyword:</label>
         <input type="text" id="keyword" name="keyword" required>
@@ -17,6 +17,8 @@
     </p>
 </form>
 
-<p><a href="/petitions">Back to all petitions</a></p>
+<p>
+    <a th:href="@{/petitions}">Back to all petitions</a>
+</p>
 </body>
 </html>

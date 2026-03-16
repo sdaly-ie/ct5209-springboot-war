@@ -7,7 +7,9 @@
 <body>
 <h1>All Petitions</h1>
 
-<p><a href="/">Home</a></p>
+<p>
+    <a th:href="@{/petitions}">Home</a>
+</p>
 
 <ul>
     <li th:each="petition : ${petitions}">
