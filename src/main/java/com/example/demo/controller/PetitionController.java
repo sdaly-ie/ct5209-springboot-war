@@ -34,4 +34,28 @@ public class PetitionController {
         petitionService.addSignatureToPetition(id, name, email);
         return "redirect:/petition/" + id;
     }
+
+    @GetMapping("/search")
+    public String showSearchPage() {
+        return "search";
+    }
+
+    @GetMapping("/search/results")
+    public String searchPetitions(@RequestParam String keyword, Model model) {
+        model.addAttribute("results", petitionService.searchPetitions(keyword));
+        model.addAttribute("keyword", keyword);
+        return "results";
+    }
+
+    @GetMapping("/create")
+    public String showCreatePetitionPage() {
+        return "create";
+    }
+
+    @PostMapping("/create")
+    public String createPetition(@RequestParam String title,
+                                 @RequestParam String description) {
+        petitionService.addPetition(title, description);
+        return "redirect:/petitions";
+    }
 }

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Search Petitions</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+<h1>Search Petitions</h1>
+
+<form action="/search/results" method="get">
+    <p>
+        <label for="keyword">Keyword:</label>
+        <input type="text" id="keyword" name="keyword" required>
+    </p>
+    <p>
+        <button type="submit">Search</button>
+    </p>
+</form>
+
+<p><a href="/petitions">Back to all petitions</a></p>
+</body>
+</html>
