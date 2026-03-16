@@ -37,5 +37,21 @@ pipeline {
                 input message: 'Deploy stephenspetitions.war?', ok: 'Deploy'
             }
         }
+
+        stage('Deploy') {
+            steps {
+                sh '''
+                scp -o StrictHostKeyChecking=no -i /var/lib/jenkins/.ssh/CT5169.pem target/stephenspetitions.war ubuntu@13.49.44.175:/home/ubuntu/stephenspetitions.war
+
+                ssh -o StrictHostKeyChecking=no -i /var/lib/jenkins/.ssh/CT5169.pem ubuntu@13.49.44.175 "
+                sudo systemctl stop tomcat10 &&
+                sudo rm -rf /var/lib/tomcat10/webapps/stephenspetitions &&
+                sudo rm -f /var/lib/tomcat10/webapps/stephenspetitions.war &&
+                sudo cp /home/ubuntu/stephenspetitions.war /var/lib/tomcat10/webapps/ &&
+                sudo systemctl start tomcat10
+                "
+                '''
+            }
+        }
     }
 }
