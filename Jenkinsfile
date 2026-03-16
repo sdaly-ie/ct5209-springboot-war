@@ -19,7 +19,7 @@ pipeline {
         }
         stage('Archive') {
             steps {
-                archiveArtifacts allowEmptyArchive: true, artifacts: '**/demo*.war'
+                archiveArtifacts allowEmptyArchive: true, artifacts: '**/stephenspetitions*.war'
             }
         }
     }
