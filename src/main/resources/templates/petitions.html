@@ -11,6 +11,10 @@
     <a th:href="@{/petitions}">Home</a>
 </p>
 
+<p>
+    <a th:href="@{/search}">Search petitions</a>
+</p>
+
 <ul>
     <li th:each="petition : ${petitions}">
         <a th:href="@{/petition/{id}(id=${petition.id})}"
