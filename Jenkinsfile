@@ -31,5 +31,11 @@ pipeline {
                 archiveArtifacts allowEmptyArchive: true, artifacts: '**/stephenspetitions*.war'
             }
         }
+
+        stage('ApproveDeploy') {
+            steps {
+                input message: 'Deploy stephenspetitions.war?', ok: 'Deploy'
+            }
+        }
     }
 }
