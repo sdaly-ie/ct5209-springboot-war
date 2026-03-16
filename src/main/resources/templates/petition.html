@@ -11,6 +11,27 @@
 
 <p><strong>Number of signatures:</strong> <span th:text="${#lists.size(petition.signatures)}">0</span></p>
 
-<p><a href="/petitions">Back to all petitions</a></p>
+<h2>Sign this Petition</h2>
+
+<form th:action="@{/petition/{id}/sign(id=${petition.id})}" method="post">
+    <p>
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+    </p>
+
+    <p>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+    </p>
+
+    <p>
+        <button type="submit">Sign Petition</button>
+    </p>
+</form>
+
+<p>
+    <a href="/petitions">Back to all petitions</a>
+</p>
+
 </body>
 </html>
