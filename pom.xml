@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
-	<artifactId>demo</artifactId>
+	<artifactId>stephenspetitions</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
 	<name>demo</name>
@@ -49,7 +49,7 @@
 	</dependencies>
 
 	<build>
-		<finalName>demo</finalName>
+		<finalName>stephenspetitions</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
