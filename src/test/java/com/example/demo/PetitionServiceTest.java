@@ -47,4 +47,18 @@ class PetitionServiceTest {
         assertEquals("Test Petition", lastPetition.getTitle());
         assertEquals("Test Description", lastPetition.getDescription());
     }
+
+    @Test
+    void shouldAddSignatureToPetition() {
+        PetitionService petitionService = new PetitionService();
+
+        Petition petition = petitionService.getPetitionById(1);
+        int before = petition.getSignatures().size();
+
+        petitionService.addSignatureToPetition(1, "Stephen Daly", "stephen@example.com");
+
+        int after = petition.getSignatures().size();
+
+        assertEquals(before + 1, after);
+    }
 }
