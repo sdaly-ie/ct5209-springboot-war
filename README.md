@@ -19,6 +19,20 @@ It was developed as part of the CT5209 Cloud DevOps module and demonstrates a Co
 - Search petitions by keyword
 - Landing page with navigation
 
+## Screenshots
+
+### Landing Page
+![Landing page](docs/images/main-petition-page.jpg)
+
+### All Petitions
+![All petitions page](docs/images/all-petition-page.jpg)
+
+### Create a Petition
+![Create petition page](docs/images/create-petition-page.jpg)
+
+### Search Petitions
+![Search petitions page](docs/images/search-petition-page.jpg)
+
 ## Tech Stack
 
 - Java 17
@@ -41,9 +55,53 @@ src/main/java/com/example/demo
 └── model         # Domain objects (Petition, Signature)
 ```
 
+## Architecture
+
+```mermaid
+flowchart LR
+
+    DEV[Developer]
+    GH[GitHub Repository]
+    CF[Cloudflare Tunnel]
+    J[Jenkins Pipeline]
+    B[Maven Build, Test, and Package]
+    AT[Automated Tests<br/>JUnit, MockMvc, Spring Boot context]
+    W[WAR Artifact<br/>stephenspetitions.war]
+
+    DEV -->|git push| GH
+    DEV -->|browser access| CF
+    GH -->|webhook| CF
+    CF -->|public access to Jenkins| J
+    J --> B
+    B --> AT
+    B --> W
+
+    U[User Browser]
+
+    subgraph EC2["AWS EC2"]
+        T[Apache Tomcat 10<br/>hosts stephenspetitions.war]
+
+        subgraph APP["Spring Boot Application"]
+            C[PetitionController]
+            S[PetitionService<br/>business logic]
+            M[Petition and Signature models<br/>in-memory seeded list]
+            V[Thymeleaf templates<br/>petitions.html<br/>petition.html<br/>create.html<br/>search.html<br/>results.html]
+        end
+    end
+
+    W -->|manual approval and deploy| T
+
+    U -->|HTTP request| T
+    T --> C
+    C --> S
+    S --> M
+    C --> V
+    T -->|HTML response| U
+```
+
 ## CI/CD Pipeline
 
-The project uses a Jenkins pipeline defined in the repository Jenkinsfile.
+The project uses a Jenkins pipeline defined in the repository `Jenkinsfile`.
 
 Pipeline stages:
 
@@ -61,9 +119,20 @@ A Jenkins instance was used to run the pipeline and verify webhook-triggered bui
 
 Direct Jenkins access may require authentication, so the main evidence of the pipeline is provided through:
 
-- the Jenkinsfile in this repository
+- the `Jenkinsfile` in this repository
 - the report screenshots
-- the demo video
+
+## Jenkins Access
+
+A Cloudflare Tunnel was used to make the Jenkins server securely reachable from the internet. This allowed browser access to the Jenkins dashboard and supported webhook-based automation without directly exposing the server through open inbound ports.
+
+### Jenkins Pipeline Evidence
+
+#### Successful Pipeline Run
+![Jenkins pipeline success](docs/images/status-jenkins.jpg)
+
+#### Manual Deployment Approval
+![Jenkins deployment approval](docs/images/deploy-jenkins.jpg)
 
 ## Testing
 
@@ -117,7 +186,7 @@ Deployment flow:
    - create a petition
    - search petitions
 3. Open a petition and sign it
-4. Review the Jenkinsfile for the pipeline stages
+4. Review the `Jenkinsfile` for the pipeline stages
 5. Inspect the commit history to see iterative development by feature
 6. See the report and video for pipeline execution evidence
 
