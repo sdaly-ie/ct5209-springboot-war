@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Petition Details</title>
+    <title th:text="${petition.title}">View Petition</title>
     <meta charset="UTF-8">
 </head>
 <body>
@@ -28,6 +28,10 @@
         <button type="submit">Sign Petition</button>
     </p>
 </form>
+
+<p>
+    <a th:href="@{/}">Home</a>
+</p>
 
 <p>
     <a th:href="@{/petitions}">Back to all petitions</a>
