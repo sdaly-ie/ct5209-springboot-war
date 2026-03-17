@@ -19,20 +19,6 @@ It was developed as part of the CT5209 Cloud DevOps module and demonstrates a Co
 - Search petitions by keyword
 - Landing page with navigation
 
-## Screenshots
-
-### Landing Page
-![Landing page](docs/images/main-petition-page.jpg)
-
-### All Petitions
-![All petitions page](docs/images/all-petition-page.jpg)
-
-### Create a Petition
-![Create petition page](docs/images/create-petition-page.jpg)
-
-### Search Petitions
-![Search petitions page](docs/images/search-petition-page.jpg)
-
 ## Tech Stack
 
 - Java 17
@@ -130,9 +116,6 @@ A Cloudflare Tunnel was used to make the Jenkins server securely reachable from 
 
 #### Successful Pipeline Run
 ![Jenkins pipeline success](docs/images/status-jenkins.jpg)
-
-#### Manual Deployment Approval
-![Jenkins deployment approval](docs/images/deploy-jenkins.jpg)
 
 ## Testing
 
