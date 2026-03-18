@@ -4,7 +4,7 @@
 
 Stephen's Petitions is a Spring Boot web application for creating, viewing, searching, and signing petitions.
 
-It was developed as part of the CT5209 Cloud DevOps module and demonstrates a Continuous Integration and Continuous Deployment (CI/CD) workflow using GitHub, Jenkins, Maven, and deployment to Apache Tomcat on Amazon Web Services (AWS) Elastic Compute Cloud (EC2).
+It was developed as part of the CT5209 Cloud DevOps module and demonstrates a Continuous Integration and Continuous Deployment (CI/CD) workflow using GitHub, Jenkins, Maven, Docker, and deployment to a Dockerized Apache Tomcat container on Amazon Web Services (AWS) Elastic Compute Cloud (EC2).
 
 ## Live Application
 
@@ -28,6 +28,7 @@ It was developed as part of the CT5209 Cloud DevOps module and demonstrates a Co
 - JUnit and MockMvc
 - Jenkins
 - GitHub
+- Docker
 - Apache Tomcat 10
 - AWS EC2
 - Cloudflare Tunnel
@@ -38,39 +39,55 @@ The diagram below shows the application runtime flow and the CI/CD path used to 
 
 ```mermaid
 flowchart LR
-
     DEV[Developer]
     GH[GitHub Repository]
     CF[Cloudflare Tunnel]
     J[Jenkins Pipeline]
     B[Maven Build, Test, and Package]
-    AT[Automated Tests<br/>JUnit, MockMvc, Spring Boot context]
-    W[WAR Artifact<br/>stephenspetitions.war]
+    AT[Automated Tests
+JUnit, MockMvc, Spring Boot context]
+    W[WAR Artifact
+stephenspetitions.war]
+    DG[Dockerfile]
+    AP[Manual deployment approval]
 
     DEV -->|git push| GH
     DEV -->|browser access| CF
-    GH -->|webhook| CF
+    GH -->|webhook or manual Jenkins run| J
     CF -->|public access to Jenkins| J
     J --> B
     B --> AT
     B --> W
-
-    U[User Browser]
+    J --> AP
 
     subgraph EC2["AWS EC2"]
-        T[Apache Tomcat 10<br/>hosts stephenspetitions.war]
-
+        DE[Docker Engine]
+        IMG[Docker image
+stephenspetitions:latest]
+        T[Tomcat container
+port 8080 mapped to host 9090]
         subgraph APP["Spring Boot Application"]
             C[PetitionController]
-            S[PetitionService<br/>business logic]
-            M[Petition and Signature models<br/>in-memory seeded list]
-            V[Thymeleaf templates<br/>petitions.html<br/>petition.html<br/>create.html<br/>search.html<br/>results.html]
+            S[PetitionService
+business logic]
+            M[Petition and Signature models
+in-memory seeded list]
+            V[Thymeleaf templates
+petitions.html
+petition.html
+create.html
+search.html
+results.html]
         end
     end
 
-    W -->|manual approval and deploy| T
+    DG -->|copied to EC2| DE
+    W -->|copied to EC2| DE
+    AP -->|deploy approved| DE
+    DE -->|docker build| IMG
+    IMG -->|docker run -p 9090:8080| T
 
-    U -->|HTTP request| T
+    U[User Browser] -->|HTTP request| T
     T --> C
     C --> S
     S --> M
@@ -82,34 +99,47 @@ flowchart LR
 
 ```text
 src/main/java/com/example/demo
-├── controller    # Web layer (PetitionController)
-├── service       # Business logic (PetitionService)
-└── model         # Domain objects (Petition, Signature)
+├── controller   # Web layer (PetitionController)
+├── service      # Business logic (PetitionService)
+└── model        # Domain objects (Petition, Signature)
+
+src/test/java/com/example/demo
+├── PetitionControllerTest
+├── PetitionServiceTest
+└── DemoApplicationTests
+
+repo root
+├── Jenkinsfile
+├── Dockerfile
+├── pom.xml
+└── README.md
 ```
 
 ## CI/CD Pipeline
 
-Jenkins is used to automate the build, test, packaging, and deployment workflow after code is pushed to GitHub.
+Jenkins is used to automate the build, test, packaging, and deployment workflow for the project.
 
-The project uses a Jenkins pipeline defined in the repository `Jenkinsfile`.
+The repository contains a Jenkins pipeline in `Jenkinsfile` with the following stages: `GetProject`, `Build`, `Test`, `Package`, `Archive`, `ApproveDeploy`, and `Deploy`.
 
-Each push to the repository can trigger the pipeline through a GitHub webhook. The pipeline then:
+The pipeline workflow is:
 
-1. Gets the latest code from GitHub
-2. Builds the application with Maven
-3. Runs automated tests
-4. Packages the application as a WAR file
-5. Archives the WAR artifact in Jenkins
-6. Pauses for manual deployment approval
-7. Deploys the WAR file to Apache Tomcat on AWS EC2
+1. Get the latest code from GitHub
+2. Build the application with Maven
+3. Run automated tests
+4. Package the application as a WAR file
+5. Archive the WAR artifact in Jenkins
+6. Pause for manual deployment approval
+7. Copy the Dockerfile and WAR file to EC2
+8. Build a Docker image on EC2
+9. Run the application as a Tomcat container on EC2
 
 ### Jenkins Access
 
-Jenkins was made securely reachable from the internet using a Cloudflare Tunnel. This supported browser access to the Jenkins dashboard and webhook-based automation without directly exposing the server through open inbound ports.
+Jenkins was made securely reachable from the internet using a Cloudflare Tunnel. This supported browser access to the Jenkins dashboard and webhook configuration without directly exposing the server through open inbound ports.
 
 ### Jenkins Pipeline Evidence
 
-The screenshot below shows a successful Jenkins pipeline run, including artifact creation and recorded deployment approval.
+The screenshot below shows a successful Jenkins pipeline run from the `main` branch, including manual approval and Docker-based deployment to EC2.
 
 ![Jenkins pipeline success](docs/images/status-jenkins.jpg)
 
@@ -134,7 +164,9 @@ The project includes automated tests across multiple layers.
 
 ## How to Run Locally
 
-The application can be started locally using the Maven wrapper from the project root directory. Open a terminal in the project root directory and run:
+The application can be started locally using the Maven wrapper from the project root directory.
+
+Open a terminal in the project root directory and run:
 
 ### Windows PowerShell
 
@@ -162,18 +194,24 @@ http://localhost:8080/create
 http://localhost:8080/search
 ```
 
+When run locally through Spring Boot, the application is served from the root context, for example `/petitions`.
+When deployed as a WAR file inside Tomcat on EC2, the WAR file name becomes the Tomcat context path, so the deployed application is reached under `/stephenspetitions`.
+
 ## Deployment
 
-The deployed version runs on Apache Tomcat 10 on AWS EC2 and is updated through the Jenkins pipeline after manual approval.
+The deployed version runs in a Dockerized Apache Tomcat container on AWS EC2 and is updated through the Jenkins pipeline after manual approval.
 
 Deployment flow:
 
-- Code is pushed to GitHub
-- Jenkins is triggered automatically by webhook
-- Maven builds and tests are executed
-- The WAR file is packaged and archived
+- Code is pushed to GitHub, where Jenkins can be triggered by webhook or run manually from Jenkins
+- Jenkins retrieves the latest code and runs build and test stages
+- The application is packaged as `stephenspetitions.war`
+- The WAR artifact is archived in Jenkins
 - Deployment proceeds after manual approval
-- The updated WAR is copied to the remote Tomcat webapps directory
+- Jenkins copies `Dockerfile` and `stephenspetitions.war` to the EC2 host
+- Jenkins stops and disables the host-level `tomcat10` service to free port `9090` for the containerized deployment
+- Jenkins builds the Docker image on EC2
+- Jenkins runs the container with port mapping `9090:8080`
 
 For the deployed version, the WAR file name provides the Tomcat context path, so the live application is reached at `/stephenspetitions` on port `9090`.
 
@@ -187,9 +225,10 @@ This section provides a quick way to review the main features, structure, and de
    - Create a petition
    - Search petitions
 3. Open a petition and sign it
-4. Review the `Jenkinsfile` for the pipeline stages
-5. Inspect the commit history to see iterative development by feature
-6. Review the architecture diagram and Jenkins pipeline evidence in this README
+4. Review `Jenkinsfile` for the pipeline stages and deployment logic
+5. Review `Dockerfile` for the Tomcat container image setup
+6. Inspect the commit history to see iterative development
+7. Review the architecture diagram and Jenkins pipeline evidence in this README
 
 ## Challenges and Reflection
 
@@ -200,11 +239,12 @@ Key challenges included:
 - Structuring the application pages and navigation cleanly
 - Configuring Jenkins pipeline stages correctly
 - Packaging the project as a WAR file for Tomcat deployment
+- Converting the deployment flow from a host Tomcat service to a Dockerized Tomcat container on EC2
 - Debugging GitHub webhook triggering and remote pipeline behaviour
 - Validating manual deployment approval and deployment to AWS EC2
 - Adding tests across service and controller layers while keeping the application stable
 
-This project provided practical experience in web development, Continuous Integration, Continuous Deployment, testing, cloud deployment, and troubleshooting.
+This project provided practical experience in web development, Continuous Integration, Continuous Deployment, testing, containerized deployment, cloud deployment, and troubleshooting.
 
 ## Future Improvements
 

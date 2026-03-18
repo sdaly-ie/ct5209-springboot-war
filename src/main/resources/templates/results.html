@@ -12,7 +12,11 @@
     <strong th:text="${keyword}">keyword</strong>
 </p>
 
-<ul>
+<p th:if="${#lists.isEmpty(results)}">
+    No petitions found matching "<strong th:text="${keyword}">keyword</strong>".
+</p>
+
+<ul th:if="${not #lists.isEmpty(results)}">
     <li th:each="petition : ${results}">
         <a th:href="@{/petition/{id}(id=${petition.id})}"
            th:text="${petition.title}">Petition title</a>
