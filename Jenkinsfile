@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('GetProject') {
             steps {
-                git branch: 'main', url: 'https://github.com/sdaly-ie/ct5209-springboot-war.git'
+                git branch: 'feature/docker-ec2-deploy', url: 'https://github.com/sdaly-ie/ct5209-springboot-war.git'
             }
         }
 
@@ -34,22 +34,27 @@ pipeline {
 
         stage('ApproveDeploy') {
             steps {
-                input message: 'Deploy stephenspetitions.war?', ok: 'Deploy'
+                input message: 'Deploy Docker container to EC2?', ok: 'Deploy'
             }
         }
 
         stage('Deploy') {
             steps {
                 sh '''
-                scp -o StrictHostKeyChecking=no -i /var/lib/jenkins/.ssh/CT5169.pem target/stephenspetitions.war ubuntu@13.49.44.175:/home/ubuntu/stephenspetitions.war
+                    ssh -o StrictHostKeyChecking=no -i /var/lib/jenkins/.ssh/CT5169.pem ubuntu@13.49.44.175 "mkdir -p /home/ubuntu/stephenspetitions-docker"
 
-                ssh -o StrictHostKeyChecking=no -i /var/lib/jenkins/.ssh/CT5169.pem ubuntu@13.49.44.175 "
-                sudo systemctl stop tomcat10 &&
-                sudo rm -rf /var/lib/tomcat10/webapps/stephenspetitions &&
-                sudo rm -f /var/lib/tomcat10/webapps/stephenspetitions.war &&
-                sudo cp /home/ubuntu/stephenspetitions.war /var/lib/tomcat10/webapps/ &&
-                sudo systemctl start tomcat10
-                "
+                    scp -o StrictHostKeyChecking=no -i /var/lib/jenkins/.ssh/CT5169.pem Dockerfile ubuntu@13.49.44.175:/home/ubuntu/stephenspetitions-docker/Dockerfile
+
+                    scp -o StrictHostKeyChecking=no -i /var/lib/jenkins/.ssh/CT5169.pem target/stephenspetitions.war ubuntu@13.49.44.175:/home/ubuntu/stephenspetitions-docker/stephenspetitions.war
+
+                    ssh -o StrictHostKeyChecking=no -i /var/lib/jenkins/.ssh/CT5169.pem ubuntu@13.49.44.175 "
+                        sudo systemctl stop tomcat10 || true
+                        sudo systemctl disable tomcat10 || true
+                        cd /home/ubuntu/stephenspetitions-docker
+                        sudo docker rm -f stephenspetitions || true
+                        sudo docker build -t stephenspetitions:latest .
+                        sudo docker run -d --name stephenspetitions -p 9090:8080 stephenspetitions:latest
+                    "
                 '''
             }
         }
