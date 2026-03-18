@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('GetProject') {
             steps {
-                git branch: 'feature/docker-ec2-deploy', url: 'https://github.com/sdaly-ie/ct5209-springboot-war.git'
+                git branch: 'main', url: 'https://github.com/sdaly-ie/ct5209-springboot-war.git'
             }
         }
 
