@@ -6,6 +6,10 @@ Stephen's Petitions is a Spring Boot web application for creating, viewing, sear
 
 It was developed as part of the CT5209 Cloud DevOps module and demonstrates a Continuous Integration and Continuous Deployment (CI/CD) workflow using GitHub, Jenkins, Maven, Docker, and deployment to a Dockerized Apache Tomcat container on Amazon Web Services (AWS) Elastic Compute Cloud (EC2).
 
+> **For reviewers:** Start with **[v1.1.0 – Review Snapshot](https://github.com/sdaly-ie/ct5209-springboot-war/releases/tag/v1.1.0)** for the stable assessed snapshot.  
+> The `main` branch may include later refinements or documentation updates.  
+> Initial release snapshot: **v1.0.0**
+
 ## Live Application
 
 - Application URL: http://13.49.44.175:9090/stephenspetitions/
