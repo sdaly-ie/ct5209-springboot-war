@@ -37,6 +37,30 @@ It was developed as part of the CT5209 Cloud DevOps module and demonstrates a Co
 - AWS EC2
 - Cloudflare Tunnel
 
+## Observability
+
+The project now includes a local observability demo using Spring Boot Actuator, Prometheus, and Grafana.
+
+### What was added
+
+- Spring Boot Actuator and Micrometer Prometheus registry
+- `/actuator/health` and `/actuator/prometheus` endpoints
+- Prometheus scrape configuration under `observability/prometheus.yml`
+- Grafana dashboard provisioning through `observability/docker-compose.yml`
+
+### What this demonstrates
+
+- Application metrics exposure from Spring Boot
+- Prometheus scraping of live application metrics
+- Grafana dashboard visualisation for operational monitoring
+- A practical first step into observability for Java and platform-oriented roles
+
+### Evidence
+
+- Prometheus target status: `docs/images/prometheus-target-up.jpg`
+- Grafana dashboard (CPU): `docs/images/grafana-dashboard-system-cpu.jpg`
+- Grafana dashboard (two panels): `docs/images/grafana-dashboard-two-panels.jpg`
+
 ## Architecture
 
 The diagram below shows the application runtime flow and the CI/CD path used to build, test, package, and deploy the application.
