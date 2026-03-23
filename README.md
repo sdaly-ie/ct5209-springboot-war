@@ -6,9 +6,30 @@ Stephen's Petitions is a Spring Boot web application for creating, viewing, sear
 
 It was developed as part of the CT5209 Cloud DevOps module and demonstrates a Continuous Integration and Continuous Deployment (CI/CD) workflow using GitHub, Jenkins, Maven, Docker, and deployment to a Dockerized Apache Tomcat container on Amazon Web Services (AWS) Elastic Compute Cloud (EC2).
 
-> **For reviewers:** Start with **[v1.1.0 – Review Snapshot](https://github.com/sdaly-ie/ct5209-springboot-war/releases/tag/v1.1.0)** for the stable assessed snapshot.  
+> **For reviewers:** Start with **[v1.2.0 – Review Snapshot](https://github.com/sdaly-ie/ct5209-springboot-war/releases/tag/v1.2.0)** for the stable assessed snapshot.  
 > The `main` branch may include later refinements or documentation updates.  
 > Initial release snapshot: **v1.0.0**
+
+### What's new in v1.2.0 on `main`
+
+The following improvements are currently present on the `main` branch and are intended to be bundled into the next release:
+
+- Added Spring Boot Actuator and Micrometer Prometheus registry
+- Exposed `/actuator/health` and `/actuator/prometheus`
+- Added Prometheus scrape configuration under `observability/prometheus.yml`
+- Added Docker Compose services for Prometheus, Grafana, and Jaeger
+- Added OpenTelemetry Spring Boot starter for automatic tracing
+- Configured OTLP trace export from the application to Jaeger
+- Added observability evidence screenshots for Prometheus, Grafana, and Jaeger
+- Expanded the README to document the local observability workflow
+
+### Release history
+
+- **[v1.1.0 – Review Snapshot](../../releases/tag/v1.1.0)**  
+  Stable assessed snapshot with Dockerized Apache Tomcat deployment on AWS EC2, a refined Jenkins pipeline, improved README deployment evidence, refreshed Jenkins screenshots, and a clearer empty-state message on the search results page.
+
+- **[v1.0.0 – Stable CI/CD Release for Petitions App](../../releases/tag/v1.0.0)**  
+  Initial stable release of the Spring Boot petitions app with Thymeleaf UI, JUnit and MockMvc testing, WAR packaging, Jenkins-based CI/CD, and deployment to Apache Tomcat on AWS EC2.
 
 ## Live Application
 
@@ -39,14 +60,16 @@ It was developed as part of the CT5209 Cloud DevOps module and demonstrates a Co
 
 ## Observability
 
-The project now includes a local observability demo using Spring Boot Actuator, Prometheus, and Grafana.
+The project now includes a local observability demo using Spring Boot Actuator, Prometheus, Grafana, OpenTelemetry, and Jaeger.
 
 ### What was added
 
 - Spring Boot Actuator and Micrometer Prometheus registry
 - `/actuator/health` and `/actuator/prometheus` endpoints
 - Prometheus scrape configuration under `observability/prometheus.yml`
-- Prometheus and Grafana services defined in `observability/docker-compose.yml`
+- Prometheus, Grafana, and Jaeger services defined in `observability/docker-compose.yml`
+- OpenTelemetry Spring Boot starter for automatic tracing
+- OTLP trace export from the application to Jaeger
 - Manual Grafana dashboard creation using Prometheus as the data source
 
 ### What this demonstrates
@@ -54,6 +77,8 @@ The project now includes a local observability demo using Spring Boot Actuator, 
 - Application metrics exposure from Spring Boot
 - Prometheus scraping of live application metrics
 - Grafana dashboard visualisation for operational monitoring
+- Automatic HTTP request tracing with OpenTelemetry
+- Trace collection and search in Jaeger
 - A practical first step into observability for Java and platform-oriented roles
 
 ### Evidence
@@ -69,6 +94,10 @@ Grafana dashboard - System CPU Usage:
 Grafana dashboard - Two panels:
 
 ![Grafana dashboard two panels](docs/images/grafana-dashboard-two-panels.jpg)
+
+Jaeger trace proof:
+
+![Jaeger trace proof](docs/images/jaeger-traces-proof.jpg)
 
 ## Architecture
 
@@ -292,7 +321,3 @@ The following items outline realistic next steps to extend the application beyon
 - Expand controller and integration test coverage
 - Add form validation and error handling
 - Add authentication and user accounts
-
-## Author
-
-Stephen Daly
