@@ -10,9 +10,9 @@ It was developed as part of the CT5209 Cloud DevOps module and demonstrates a Co
 > The `main` branch may include later refinements or documentation updates.  
 > Initial release snapshot: **v1.0.0**
 
-### What's new in v1.2.0 on `main`
+### What's new in v1.2.0
 
-The following improvements are currently present on the `main` branch and are intended to be bundled into the next release:
+The following improvements were bundled into v1.2.0:
 
 - Added Spring Boot Actuator and Micrometer Prometheus registry
 - Exposed `/actuator/health` and `/actuator/prometheus`
@@ -98,6 +98,160 @@ Grafana dashboard - Two panels:
 Jaeger trace proof:
 
 ![Jaeger trace proof](docs/images/jaeger-traces-proof.jpg)
+
+### Observability quick start
+
+The observability setup is local only and is not part of the EC2 deployment shown elsewhere in this project.
+
+The observability stack is intended for local demonstration and learning. It uses Prometheus, Grafana, and Jaeger alongside the Spring Boot application.
+
+#### Local prerequisites
+
+To run these checks locally, make sure the following are installed and working on your machine:
+
+- **Java 17**  
+  Required to run the Spring Boot application.
+
+- **Docker Desktop**  
+  Required to run Prometheus, Grafana, and Jaeger from `observability/docker-compose.yml`.
+
+- **A web browser**  
+  Required to open the application, Prometheus, Grafana, and Jaeger locally.
+
+- **Internet access for the first Docker pull**  
+  Docker may need to download the container images the first time you run the observability stack.
+
+You do **not** need to install Maven separately because this project includes the Maven Wrapper:
+
+- `mvnw.cmd` for Windows
+- `mvnw` for macOS / Linux
+
+#### Recommended local checks before starting
+
+From the project root, you can verify the basics with the following commands.
+
+##### Windows PowerShell
+
+```powershell
+java -version
+docker version
+```
+
+##### macOS / Linux
+
+```bash
+java -version
+docker version
+```
+
+Expected outcome:
+
+- `java -version` should show **Java 17**
+- `docker version` should return both **Client** and **Server**
+
+#### Start the observability services
+
+From the project root, run:
+
+##### Windows PowerShell
+
+```powershell
+docker compose -f observability/docker-compose.yml up -d
+```
+
+##### macOS / Linux
+
+```bash
+docker compose -f observability/docker-compose.yml up -d
+```
+
+This starts:
+
+- Prometheus on `http://localhost:9090`
+- Grafana on `http://localhost:3000`
+- Jaeger on `http://localhost:16686`
+
+Grafana default local demo credentials for a fresh container startup:
+
+- Username: `admin`
+- Password: `admin`
+
+On first login to a fresh Grafana instance, Grafana may prompt you to change the default password.
+
+#### Start the Spring Boot application
+
+From the project root, run:
+
+##### Windows PowerShell
+
+```powershell
+.\mvnw.cmd spring-boot:run
+```
+
+##### macOS / Linux
+
+```bash
+./mvnw spring-boot:run
+```
+
+The application runs locally on:
+
+```text
+http://localhost:8080
+```
+
+Useful local routes for generating requests and traces:
+
+```text
+http://localhost:8080/petitions
+http://localhost:8080/create
+http://localhost:8080/search
+```
+
+#### Verify metrics
+
+Open:
+
+```text
+http://localhost:8080/actuator/health
+http://localhost:8080/actuator/prometheus
+```
+
+Then open Prometheus and confirm the Spring Boot application target is up:
+
+```text
+http://localhost:9090
+```
+
+#### Verify traces
+
+Open Jaeger:
+
+```text
+http://localhost:16686
+```
+
+Select the service:
+
+```text
+ct5209-springboot-war
+```
+
+Then visit a few application routes such as `/petitions`, `/create`, and `/search`.
+
+Return to Jaeger and click **Find Traces**.
+
+Open one returned trace to confirm the request spans are visible.
+
+#### Stop the observability services
+
+When finished, stop the local observability stack with:
+
+##### Windows PowerShell / macOS / Linux
+
+```bash
+docker compose -f observability/docker-compose.yml down
+```
 
 ## Architecture
 
