@@ -46,7 +46,8 @@ The project now includes a local observability demo using Spring Boot Actuator, 
 - Spring Boot Actuator and Micrometer Prometheus registry
 - `/actuator/health` and `/actuator/prometheus` endpoints
 - Prometheus scrape configuration under `observability/prometheus.yml`
-- Grafana dashboard provisioning through `observability/docker-compose.yml`
+- Prometheus and Grafana services defined in `observability/docker-compose.yml`
+- Manual Grafana dashboard creation using Prometheus as the data source
 
 ### What this demonstrates
 
@@ -57,9 +58,17 @@ The project now includes a local observability demo using Spring Boot Actuator, 
 
 ### Evidence
 
-- Prometheus target status: `docs/images/prometheus-target-up.jpg`
-- Grafana dashboard (CPU): `docs/images/grafana-dashboard-system-cpu.jpg`
-- Grafana dashboard (two panels): `docs/images/grafana-dashboard-two-panels.jpg`
+Prometheus target status:
+
+![Prometheus target up](docs/images/prometheus-target-up.jpg)
+
+Grafana dashboard - System CPU Usage:
+
+![Grafana dashboard system CPU](docs/images/grafana-dashboard-system-cpu.jpg)
+
+Grafana dashboard - Two panels:
+
+![Grafana dashboard two panels](docs/images/grafana-dashboard-two-panels.jpg)
 
 ## Architecture
 
