@@ -5,15 +5,15 @@
     <meta charset="UTF-8">
 </head>
 <body>
-<h1>Search Petitions</h1>
+<h1 data-cy="search-page-title">Search Petitions</h1>
 
-<form th:action="@{/search/results}" method="get">
+<form th:action="@{/search/results}" method="get" data-cy="search-form">
     <p>
         <label for="keyword">Keyword:</label>
-        <input type="text" id="keyword" name="keyword" required>
+        <input type="text" id="keyword" name="keyword" required data-cy="search-keyword-input">
     </p>
     <p>
-        <button type="submit">Search</button>
+        <button type="submit" data-cy="search-submit-button">Search</button>
     </p>
 </form>
 

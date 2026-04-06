@@ -1,0 +1,31 @@
+{
+  "name": "ct5209-springboot-war",
+  "version": "1.0.0",
+  "description": "Stephen's Petitions is a Spring Boot web application for creating, viewing, searching, and signing petitions.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "cy:open": "cypress open",
+    "cy:run": "cypress run",
+    "app:start": "mvn spring-boot:run",
+    "e2e": "start-server-and-test \"mvn spring-boot:run\" http://localhost:8080 \"cypress run\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sdaly-ie/ct5209-springboot-war.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/sdaly-ie/ct5209-springboot-war/issues"
+  },
+  "homepage": "https://github.com/sdaly-ie/ct5209-springboot-war#readme",
+  "devDependencies": {
+    "cypress": "^15.13.0",
+    "start-server-and-test": "^3.0.0"
+  }
+}

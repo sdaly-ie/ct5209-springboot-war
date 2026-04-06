@@ -5,21 +5,22 @@
     <meta charset="UTF-8">
 </head>
 <body>
-<h1>Search Results</h1>
+<h1 data-cy="results-page-title">Search Results</h1>
 
 <p>
     Results for:
-    <strong th:text="${keyword}">keyword</strong>
+    <strong th:text="${keyword}" data-cy="search-keyword-value">keyword</strong>
 </p>
 
-<p th:if="${#lists.isEmpty(results)}">
+<p th:if="${#lists.isEmpty(results)}" data-cy="no-results-message">
     No petitions found matching "<strong th:text="${keyword}">keyword</strong>".
 </p>
 
-<ul th:if="${not #lists.isEmpty(results)}">
+<ul th:if="${not #lists.isEmpty(results)}" data-cy="results-list">
     <li th:each="petition : ${results}">
         <a th:href="@{/petition/{id}(id=${petition.id})}"
-           th:text="${petition.title}">Petition title</a>
+           th:text="${petition.title}"
+           data-cy="result-link">Petition title</a>
     </li>
 </ul>
 

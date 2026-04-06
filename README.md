@@ -1,14 +1,27 @@
 # Stephen's Petitions App
 
+[![Cypress E2E](https://github.com/sdaly-ie/ct5209-springboot-war/actions/workflows/cypress-e2e.yml/badge.svg)](https://github.com/sdaly-ie/ct5209-springboot-war/actions/workflows/cypress-e2e.yml)
+![GitHub Release](https://img.shields.io/github/v/release/sdaly-ie/ct5209-springboot-war)
+
 ## Overview
 
 Stephen's Petitions is a Spring Boot web application for creating, viewing, searching, and signing petitions.
 
 It was developed as part of the CT5209 Cloud DevOps module and demonstrates a Continuous Integration and Continuous Deployment (CI/CD) workflow using GitHub, Jenkins, Maven, Docker, and deployment to a Dockerized Apache Tomcat container on Amazon Web Services (AWS) Elastic Compute Cloud (EC2).
 
-> **For reviewers:** Start with **[v1.2.0 – Review Snapshot](https://github.com/sdaly-ie/ct5209-springboot-war/releases/tag/v1.2.0)** for the stable assessed snapshot.  
-> The `main` branch may include later refinements or documentation updates.  
-> Initial release snapshot: **v1.0.0**
+> **For reviewers:** Start with **[v1.3.0 – Cypress E2E Review Snapshot](https://github.com/sdaly-ie/ct5209-springboot-war/releases/tag/v1.3.0)** for the latest stable employer-facing snapshot.  
+> The `main` branch may include later refinements after this release.  
+> Earlier review snapshots remain available as **v1.2.0**, **v1.1.0**, and **v1.0.0**.
+
+### What's new in v1.3.0
+
+The following improvements were bundled into v1.3.0:
+
+- Added Cypress end-to-end browser automation for key petition flows
+- Added stable `data-cy` selectors to support maintainable browser tests
+- Added local npm scripts for interactive Cypress runs and CI-style end-to-end execution
+- Added a GitHub Actions workflow for Cypress end-to-end testing
+- Expanded the README to document Cypress coverage, local execution, and reviewer guidance
 
 ### What's new in v1.2.0
 
@@ -24,6 +37,12 @@ The following improvements were bundled into v1.2.0:
 - Expanded the README to document the local observability workflow
 
 ### Release history
+
+- **[v1.3.0 – Cypress E2E Review Snapshot](../../releases/tag/v1.3.0)**  
+  Stable employer-facing snapshot adding Cypress browser automation, local npm-based end-to-end execution, GitHub Actions workflow support, and README updates for reviewer clarity.
+
+- **[v1.2.0 – Observability Review Snapshot](../../releases/tag/v1.2.0)**  
+  Stable review snapshot adding Spring Boot Actuator, Prometheus, Grafana, OpenTelemetry, Jaeger, and README evidence for local observability.
 
 - **[v1.1.0 – Review Snapshot](../../releases/tag/v1.1.0)**  
   Stable assessed snapshot with Dockerized Apache Tomcat deployment on AWS EC2, a refined Jenkins pipeline, improved README deployment evidence, refreshed Jenkins screenshots, and a clearer empty-state message on the search results page.
@@ -51,6 +70,9 @@ The following improvements were bundled into v1.2.0:
 - Thymeleaf
 - Maven
 - JUnit and MockMvc
+- Cypress
+- npm and start-server-and-test
+- GitHub Actions
 - Jenkins
 - GitHub
 - Docker
@@ -255,23 +277,59 @@ docker compose -f observability/docker-compose.yml down
 
 ## Architecture
 
-The diagram below shows the application runtime flow and the CI/CD path used to build, test, package, and deploy the application.
+The diagram below shows the application runtime flow, the assessed Jenkins deployment path, and the Cypress browser-automation paths used locally and in GitHub Actions.
 
 ```mermaid
 flowchart LR
     DEV[Developer]
     GH[GitHub Repository]
-    CF[Cloudflare Tunnel]
-    J[Jenkins Pipeline]
-    B[Maven Build, Test, and Package]
-    AT[Automated Tests
-JUnit, MockMvc, Spring Boot context]
-    W[WAR Artifact
-stephenspetitions.war]
-    DG[Dockerfile]
-    AP[Manual deployment approval]
+    U[User Browser]
+
+    subgraph LOCAL["Local browser automation"]
+        NPM[npm run cy:open<br/>npm run e2e]
+        LS[Local Spring Boot app<br/>http://localhost:8080]
+        LCY[Cypress E2E]
+    end
+
+    subgraph CI["GitHub Actions browser automation"]
+        GHA[GitHub Actions<br/>Cypress E2E workflow]
+        CIAPP[Temporary Spring Boot app]
+        CICY[Cypress headless run]
+    end
+
+    subgraph DEPLOY["Assessed deployment path"]
+        CF[Cloudflare Tunnel]
+        J[Jenkins Pipeline]
+        B[Maven build, test, and package]
+        AT[Automated tests<br/>JUnit, MockMvc, Spring Boot context]
+        W[WAR artifact<br/>stephenspetitions.war]
+        DG[Dockerfile]
+        AP[Manual deployment approval]
+    end
+
+    subgraph EC2["AWS EC2"]
+        DE[Docker Engine]
+        IMG[Docker image<br/>stephenspetitions:latest]
+        T[Tomcat container<br/>host 9090 → container 8080]
+        subgraph APP["Spring Boot application"]
+            C[PetitionController]
+            S[PetitionService<br/>business logic]
+            M[Petition and Signature models<br/>in-memory seeded list]
+            V[Thymeleaf templates<br/>petitions.html<br/>petition.html<br/>create.html<br/>search.html<br/>results.html]
+        end
+    end
 
     DEV -->|git push| GH
+    DEV -->|run locally| NPM
+    NPM -->|starts app| LS
+    NPM -->|runs browser tests| LCY
+    LCY -->|checks local flows| LS
+
+    GH -->|push or pull request| GHA
+    GHA -->|npm ci + npm run e2e| CIAPP
+    GHA --> CICY
+    CICY -->|checks browser flows| CIAPP
+
     DEV -->|browser access| CF
     GH -->|webhook or manual Jenkins run| J
     CF -->|public access to Jenkins| J
@@ -280,34 +338,13 @@ stephenspetitions.war]
     B --> W
     J --> AP
 
-    subgraph EC2["AWS EC2"]
-        DE[Docker Engine]
-        IMG[Docker image
-stephenspetitions:latest]
-        T[Tomcat container
-port 8080 mapped to host 9090]
-        subgraph APP["Spring Boot Application"]
-            C[PetitionController]
-            S[PetitionService
-business logic]
-            M[Petition and Signature models
-in-memory seeded list]
-            V[Thymeleaf templates
-petitions.html
-petition.html
-create.html
-search.html
-results.html]
-        end
-    end
-
     DG -->|copied to EC2| DE
     W -->|copied to EC2| DE
     AP -->|deploy approved| DE
     DE -->|docker build| IMG
     IMG -->|docker run -p 9090:8080| T
 
-    U[User Browser] -->|HTTP request| T
+    U -->|HTTP request| T
     T --> C
     C --> S
     S --> M
@@ -329,8 +366,12 @@ src/test/java/com/example/demo
 └── DemoApplicationTests
 
 repo root
+├── .github/workflows/cypress-e2e.yml
+├── cypress/e2e/petitions/petitions.cy.js
+├── cypress.config.js
 ├── Jenkinsfile
 ├── Dockerfile
+├── package.json
 ├── pom.xml
 └── README.md
 ```
@@ -340,6 +381,8 @@ repo root
 Jenkins is used to automate the build, test, packaging, and deployment workflow for the project.
 
 The repository contains a Jenkins pipeline in `Jenkinsfile` with the following stages: `GetProject`, `Build`, `Test`, `Package`, `Archive`, `ApproveDeploy`, and `Deploy`.
+
+In addition, the repository now includes a GitHub Actions workflow for Cypress browser-based end-to-end testing. This lightweight workflow complements the existing Jenkins pipeline without changing the original assessed deployment path.
 
 The pipeline workflow is:
 
@@ -382,9 +425,34 @@ The project includes automated tests across multiple layers.
 
 - Verify the Spring Boot application context loads
 
+### Cypress end-to-end tests
+
+The project now includes a small Cypress browser automation slice for higher-level end-to-end verification.
+
+Current Cypress coverage includes:
+
+- Create a new petition through the browser and confirm it appears in the petitions list
+- Search for a newly created petition and confirm it appears in the search results
+
+This Cypress suite uses stable `data-cy` selectors and is intended as a lightweight browser-level complement to the existing JUnit and MockMvc tests.
+
+#### Cypress evidence
+
+The screenshot below shows the Cypress end-to-end browser checks passing locally against the Spring Boot application.
+
+![Cypress E2E passing](docs/images/cypress-e2e-passing.jpg)
+
 ## How to Run Locally
 
 The application can be started locally using the Maven wrapper from the project root directory.
+
+If you want to run the Cypress browser checks, install the Node dependencies once from the project root first:
+
+### Windows PowerShell / macOS / Linux
+
+```bash
+npm install
+```
 
 Open a terminal in the project root directory and run:
 
@@ -417,6 +485,40 @@ http://localhost:8080/search
 When run locally through Spring Boot, the application is served from the root context, for example `/petitions`.
 When deployed as a WAR file inside Tomcat on EC2, the WAR file name becomes the Tomcat context path, so the deployed application is reached under `/stephenspetitions`.
 
+### Run Cypress locally
+
+From the project root, you can run the Cypress browser checks with the following commands.
+
+#### Open Cypress interactively
+
+##### Windows PowerShell
+
+```powershell
+npm run cy:open
+```
+
+##### macOS / Linux
+
+```bash
+npm run cy:open
+```
+
+#### Run Cypress headlessly with the Spring Boot app started automatically
+
+##### Windows PowerShell
+
+```powershell
+npm run e2e
+```
+
+##### macOS / Linux
+
+```bash
+npm run e2e
+```
+
+The Cypress checks target the local Spring Boot root context at `http://localhost:8080`, not the deployed Tomcat WAR context path under `/stephenspetitions`.
+
 ## Deployment
 
 The deployed version runs in a Dockerized Apache Tomcat container on AWS EC2 and is updated through the Jenkins pipeline after manual approval.
@@ -437,7 +539,7 @@ For the deployed version, the WAR file name provides the Tomcat context path, so
 
 ## Reviewer Quick Tour
 
-This section provides a quick way to review the main features, structure, and deployment evidence of the project.
+This section provides a quick way to review the main features, structure, testing, and deployment evidence of the project.
 
 1. Open the live application
 2. Use the navigation links to:
@@ -446,9 +548,11 @@ This section provides a quick way to review the main features, structure, and de
    - Search petitions
 3. Open a petition and sign it
 4. Review `Jenkinsfile` for the pipeline stages and deployment logic
-5. Review `Dockerfile` for the Tomcat container image setup
-6. Inspect the commit history to see iterative development
-7. Review the architecture diagram and Jenkins pipeline evidence in this README
+5. Review `.github/workflows/cypress-e2e.yml` for the Cypress browser automation workflow
+6. Review `cypress/e2e/petitions/petitions.cy.js` for the end-to-end browser checks
+7. Review `Dockerfile` for the Tomcat container image setup
+8. Inspect the commit history to see iterative development
+9. Review the architecture diagram, testing notes, and Jenkins pipeline evidence in this README
 
 ## Challenges and Reflection
 
@@ -470,7 +574,7 @@ This project provided practical experience in web development, Continuous Integr
 
 The following items outline realistic next steps to extend the application beyond the current scope.
 
-- Add persistent database storage such as H2, MySQL, or AWS Relational Database Service (RDS)
+- Add a more persistent database option such as MySQL/PostgreSQL or AWS Relational Database Service (RDS), while retaining H2 for lightweight local development
 - Improve the user interface styling and usability
 - Expand controller and integration test coverage
 - Add form validation and error handling

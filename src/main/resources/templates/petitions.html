@@ -5,20 +5,21 @@
     <meta charset="UTF-8">
 </head>
 <body>
-<h1>All Petitions</h1>
+<h1 data-cy="petitions-page-title">All Petitions</h1>
 
 <p>
     <a th:href="@{/}">Home</a>
 </p>
 
 <p>
-    <a th:href="@{/search}">Search petitions</a>
+    <a th:href="@{/search}" data-cy="search-petitions-link">Search petitions</a>
 </p>
 
-<ul>
+<ul data-cy="petition-list">
     <li th:each="petition : ${petitions}">
         <a th:href="@{/petition/{id}(id=${petition.id})}"
-           th:text="${petition.title}">Petition title</a>
+           th:text="${petition.title}"
+           data-cy="petition-link">Petition title</a>
     </li>
 </ul>
 </body>
