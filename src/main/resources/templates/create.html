@@ -10,12 +10,11 @@
 <form th:action="@{/create}" method="post" data-cy="create-form">
     <p>
         <label for="title">Title:</label>
-        <input type="text" id="title" name="title" required data-cy="petition-title-input">
-    </p>
+        <input type="text" id="title" name="title" required placeholder="Enter a clear, concise petition title" data-cy="petition-title-input">    </p>
 
     <p>
         <label for="description">Description:</label>
-        <textarea id="description" name="description" rows="5" cols="40" required data-cy="petition-description-input"></textarea>
+        <textarea id="description" name="description" rows="5" cols="40" required placeholder="Describe what this petition is about and why it matters" data-cy="petition-description-input"></textarea>
     </p>
 
     <p>
